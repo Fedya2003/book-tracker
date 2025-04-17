@@ -5,7 +5,7 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 
 const Navbar: React.FC = () => {
     return (
-        <nav className="bg-blue-600 p-4 shadow-md">
+        <nav className="sticky top-0 z-50 bg-blue-600 p-4 shadow-md">
             <div className="container mx-auto flex justify-between items-center">
                 {/* Logo va sahifa nomi */}
                 <Link href="/" className="text-white text-2xl font-semibold">

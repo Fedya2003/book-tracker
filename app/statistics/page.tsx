@@ -72,7 +72,7 @@ const StatisticsPage = () => {
                         className="bg-blue-50 p-3 rounded-md border border-blue-100 shadow-sm"
                     >
                         <span className="font-medium">{monthData.month}:</span>{' '}
-                        <span className="text-blue-800">{monthData.booksRead} kitob o‘qildi</span>
+                        <span className="text-blue-800">{monthData.booksRead}ta kitob o‘qilyapti</span>
                     </li>
                 ))}
             </ul>

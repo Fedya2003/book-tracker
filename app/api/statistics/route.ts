@@ -1,68 +1,86 @@
+import { connectToDatabase } from '@/lib/mongodb';
 import { NextResponse } from 'next/server';
-import { MongoClient } from 'mongodb';
 
-const client = new MongoClient(process.env.MONGO_URI!);
-const db = client.db('bookTracker');
-const booksCollection = db.collection('books');
+const CLERK_API_KEY = process.env.CLERK_SECRET_KEY!;
+
+interface ReadingPlan {
+	done: boolean;
+	// kerak bo‘lsa: date?: string;
+}
+
+interface Book {
+	pages: number;
+	readEndDate?: string;
+	readingPlans: ReadingPlan[];
+}
 
 export async function GET() {
 	try {
-		await client.connect();
+		const { db } = await connectToDatabase();
+		const booksCollection = db.collection<Book>('books');
 
-		// Umumiy kitoblar soni
-		const totalBooks = await booksCollection.countDocuments();
+		const books = await booksCollection.find().toArray();
 
-		// Umumiy o‘qilgan betlar soni
-		const totalPagesRead = await booksCollection
-			.aggregate([
-				{ $group: { _id: null, totalPages: { $sum: '$pages' } } },
-			])
-			.toArray();
-		const totalPages = totalPagesRead[0]?.totalPages || 0;
+		let totalBooks = 0;
+		let totalPagesRead = 0;
 
-		// Kitoblarni oylar bo‘yicha guruhlash
-		const booksByMonth = await booksCollection
-			.aggregate([
-				{
-					$project: {
-						month: {
-							$month: {
-								$dateFromString: {
-									dateString: '$readStartDate',
-								},
-							},
-						},
-						year: {
-							$year: {
-								$dateFromString: {
-									dateString: '$readStartDate',
-								},
-							},
-						},
-					},
-				},
-				{
-					$group: {
-						_id: { year: '$year', month: '$month' },
-						booksRead: { $sum: 1 },
-					},
-				},
-				{ $sort: { '_id.year': -1, '_id.month': -1 } },
-			])
-			.toArray();
+		const monthlyStats: Record<string, number> = {};
+
+		for (const book of books) {
+			const readingPlans = book.readingPlans || [];
+
+			const donePlans = readingPlans.filter(plan => plan.done);
+			const allPlansCount = readingPlans.length;
+
+			if (donePlans.length === allPlansCount && allPlansCount > 0) {
+				totalBooks += 1;
+			}
+
+			if (allPlansCount > 0) {
+				const readRatio = donePlans.length / allPlansCount;
+				totalPagesRead += Math.ceil(book.pages * readRatio);
+			}
+
+			// Oylik statistikani yig‘ish
+			if (book.readEndDate) {
+				const date = new Date(book.readEndDate);
+				const month = date.toLocaleString('uz-UZ', { month: 'long' });
+				monthlyStats[month] = (monthlyStats[month] || 0) + 1;
+			}
+		}
+
+		const booksByMonth = Object.entries(monthlyStats).map(
+			([month, count]) => ({
+				month,
+				booksRead: count,
+			})
+		);
+		// ✅ Clerk API orqali foydalanuvchilarni olish
+		const response = await fetch('https://api.clerk.com/v1/users', {
+			headers: {
+				Authorization: `Bearer ${CLERK_API_KEY}`,
+			},
+		});
+		const users = await response.json();
+
+		const userCount = users.length || users.total_count || 0;
+
+		// 🚧 Hozircha pageViews static bo‘lib turadi
+		const pageViews = 789;
 
 		return NextResponse.json({
 			success: true,
 			totalBooks,
-			totalPagesRead: totalPages,
-			booksByMonth: booksByMonth.map((item: any) => ({
-				month: `${item._id.month}-${item._id.year}`,
-				booksRead: item.booksRead,
-			})),
+			totalPagesRead,
+			booksByMonth,
+			userCount,
+			pageViews,
 		});
-	} catch {
-		return NextResponse.json({ success: false, message: 'Xato yuz berdi' });
-	} finally {
-		await client.close();
+	} catch (error) {
+		console.error('Statistika olishda xatolik:', error);
+		return NextResponse.json(
+			{ success: false, message: 'Xatolik yuz berdi' },
+			{ status: 500 }
+		);
 	}
 }
