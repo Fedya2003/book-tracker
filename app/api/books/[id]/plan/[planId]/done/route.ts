@@ -1,5 +1,3 @@
-// app/api/books/[bookId]/plan/[planId]/done/route.ts
-
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
@@ -12,8 +10,9 @@ type Params = {
 };
 
 export async function PATCH(_: Request, { params }: Params) {
+	const { id, planId } = params;
+
 	const { db } = await connectToDatabase();
-	const { id, planId } = await params;
 
 	try {
 		const result = await db
@@ -35,7 +34,7 @@ export async function PATCH(_: Request, { params }: Params) {
 			message: 'Holat muvaffaqiyatli o‘zgartirildi',
 		});
 	} catch (err) {
-		console.error(err);
+		console.error('Xatolik:', err);
 		return NextResponse.json(
 			{ success: false, message: 'Xatolik yuz berdi' },
 			{ status: 500 }

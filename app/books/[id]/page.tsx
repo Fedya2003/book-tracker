@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { BookType } from '@/types';
+import { CalendarCheck, Loader, BookOpen, User } from 'lucide-react';
 
 const BookDetailPage = () => {
     const params = useParams();
@@ -29,11 +30,20 @@ const BookDetailPage = () => {
     }, [id]);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-emerald-50 text-emerald-600">
+                <Loader className="animate-spin mr-2" />
+                Yuklanmoqda...
+            </div>
+        );
     }
 
     if (!book) {
-        return <div>Kitob topilmadi.</div>;
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-emerald-50 text-red-500">
+                Kitob topilmadi.
+            </div>
+        );
     }
 
     const handleMarkAsDone = async (planId: string) => {
@@ -57,33 +67,49 @@ const BookDetailPage = () => {
     };
 
     return (
-        <div className="container max-w-3xl mx-auto p-4">
-            <h1 className="text-2xl font-bold">{book.title}</h1>
-            <h2 className="text-xl text-gray-600">{book.author}</h2>
+        <div className="min-h-screen bg-gradient-to-br p-4">
+            <div className="container max-w-3xl mx-auto p-6 bg-blue-300 rounded-xl shadow-lg shadow-emerald-300/50">
+                <div className="mb-6">
+                    <h1 className="text-3xl font-bold text-emerald-700 flex items-center gap-2">
+                        <BookOpen className="w-6 h-6" />
+                        {book.title}
+                    </h1>
+                    <p className="text-gray-500 mt-1 flex items-center gap-1">
+                        <User className="w-4 h-4" />
+                        {book.author}
+                    </p>
+                </div>
 
-            <div className="mt-4">
-                <h3 className="text-lg font-semibold">Kunlik Rejalar</h3>
-                <ul>
-                    {book.readingPlans && book.readingPlans.length > 0 ? (
-                        book.readingPlans.map((plan) => (
-                            <li key={plan.id} className="flex items-center justify-between py-2">
-                                <span className={plan.done ? 'line-through text-gray-500' : ''}>
-                                    {plan.date}: {plan.pages} sahifa
-                                </span>
-                                {!plan.done && (
-                                    <button
-                                        onClick={() => handleMarkAsDone(plan.id)}
-                                        className="text-blue-500 hover:underline"
-                                    >
-                                        Bajarildi
-                                    </button>
-                                )}
-                            </li>
-                        ))
-                    ) : (
-                        <li className="text-gray-500">Rejalar mavjud emas.</li>
-                    )}
-                </ul>
+                <div className="mt-6">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <CalendarCheck className="w-5 h-5 text-emerald-600" />
+                        Kunlik o‘qish rejasi
+                    </h3>
+                    <ul className="space-y-3">
+                        {book.readingPlans && book.readingPlans.length > 0 ? (
+                            book.readingPlans.map((plan) => (
+                                <li
+                                    key={plan.id}
+                                    className="flex items-center justify-between px-4 py-3 border rounded-xl bg-emerald-50 hover:bg-emerald-100 transition"
+                                >
+                                    <span className={`text-sm ${plan.done ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                                        {plan.date}: <span className="font-medium">{plan.pages} sahifa</span>
+                                    </span>
+                                    {!plan.done && (
+                                        <button
+                                            onClick={() => handleMarkAsDone(plan.id)}
+                                            className="px-3 py-1 text-sm text-white bg-emerald-600 rounded hover:bg-emerald-700 transition"
+                                        >
+                                            Bajarildi
+                                        </button>
+                                    )}
+                                </li>
+                            ))
+                        ) : (
+                            <li className="text-gray-500 text-sm">Rejalar mavjud emas.</li>
+                        )}
+                    </ul>
+                </div>
             </div>
         </div>
     );

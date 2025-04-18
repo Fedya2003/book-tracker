@@ -4,6 +4,7 @@ import { BookType } from '@/types';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { FaEdit, FaTrashAlt, FaPlusCircle } from 'react-icons/fa';
 
 const BookPage = () => {
     const { user } = useUser();
@@ -45,10 +46,10 @@ const BookPage = () => {
     const handleEdit = (id: string) => {
         const bookToEdit = books.find((book) => book._id === id);
         if (bookToEdit) {
-            setTitle(bookToEdit.title || ''); // Ensure it's always a string
-            setAuthor(bookToEdit.author || ''); // Ensure it's always a string
-            setPages(bookToEdit.pages || 0); // Ensure it's always a number
-            setReadingDays(bookToEdit.readingDays || 0); // Ensure it's always a number
+            setTitle(bookToEdit.title || '');
+            setAuthor(bookToEdit.author || '');
+            setPages(bookToEdit.pages || 0);
+            setReadingDays(bookToEdit.readingDays || 0);
             setEditBookId(id);
             setIsModalOpen(true);
         }
@@ -131,104 +132,99 @@ const BookPage = () => {
     }
 
     return (
-        <div className="container max-w-3xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Kitoblar</h1>
+        <div className="container max-w-3xl mx-auto p-6">
+            <h1 className="text-2xl font-bold mb-6">Kitoblar</h1>
 
-            <h2 className="text-xl font-semibold mb-2">Yangi kitob qo‘shish</h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Yangi kitob qo‘shish</h2>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6 mb-8">
                 <div>
-                    <label htmlFor="title" className="block mb-1 font-medium text-gray-700">Kitob nomi</label>
+                    <label htmlFor="title" className="block mb-2 font-medium text-gray-700">Kitob nomi</label>
                     <input
                         type="text"
                         id="title"
-                        placeholder="Kitob nomini kiriting!"
+                        placeholder="Kitob nomini kiriting"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         required
-                        className="border p-2 rounded w-full"
+                        className="border p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="author" className="block mb-1 font-medium text-gray-700">Muallif</label>
+                    <label htmlFor="author" className="block mb-2 font-medium text-gray-700">Muallif</label>
                     <input
                         type="text"
                         id="author"
-                        placeholder="Muallif nomini kiriting!"
+                        placeholder="Muallif nomini kiriting"
                         value={author}
                         onChange={(e) => setAuthor(e.target.value)}
                         required
-                        className="border p-2 rounded w-full"
+                        className="border p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="pages" className="block mb-1 font-medium text-gray-700">Betlar soni</label>
+                    <label htmlFor="pages" className="block mb-2 font-medium text-gray-700">Betlar soni</label>
                     <input
                         type="number"
                         id="pages"
                         placeholder="Betlar soni"
-                        value={pages || 0} // Ensure a number is always present
+                        value={pages || 0}
                         onChange={(e) => setPages(Number(e.target.value))}
                         required
-                        className="border p-2 rounded w-full"
+                        className="border p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="readingDays" className="block mb-1 font-medium text-gray-700">Necha kunda o‘qishni rejalashtiryapsiz?</label>
+                    <label htmlFor="readingDays" className="block mb-2 font-medium text-gray-700">Necha kunda o‘qishni rejalashtiryapsiz?</label>
                     <input
                         type="number"
                         id="readingDays"
                         placeholder="Necha kunda o‘qishni rejalashtiryapsiz?"
-                        value={readingDays || 0} // Ensure a number is always present
+                        value={readingDays || 0}
                         onChange={(e) => setReadingDays(Number(e.target.value))}
                         required
-                        className="border p-2 rounded w-full"
+                        className="border p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
 
-                <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 w-full">
-                    Qo‘shish
+                <button type="submit" className="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2">
+                    <FaPlusCircle /> Qo‘shish
                 </button>
             </form>
 
-            <h2 className="text-xl font-semibold mb-2">Ro‘yxatdagi kitoblar</h2>
-            <ul className="space-y-4">
+            <h2 className="text-xl font-semibold mb-4">Ro‘yxatdagi kitoblar</h2>
+            <ul className="space-y-6">
                 {books.map((book) => {
                     const readingPlans = book.readingPlans || [];
                     const completedCount = readingPlans.filter((plan) => plan.done).length;
                     const completedPercent = readingPlans.length > 0 ? (completedCount / readingPlans.length) * 100 : 0;
 
                     return (
-                        <li key={book._id} className="border p-4 rounded shadow">
-                            <Link href={`/books/${book._id}`} className="block">
-                                <div>
-                                    <h3 className="font-bold">{book.title}</h3>
-                                    <p><strong>Muallif:</strong> {book.author}</p>
-                                    <p><strong>Betlar soni:</strong> {book.pages}</p>
-                                </div>
-                            </Link>
+                        <li key={book._id} className="border p-5 rounded-lg shadow-md flex flex-col gap-4">
+                            <Link href={`/books/${book._id}`} className="block text-lg font-bold">{book.title}</Link>
+                            <p><strong>Muallif:</strong> {book.author}</p>
+                            <p><strong>Betlar soni:</strong> {book.pages}</p>
 
                             {/* Progress bar */}
-                            <div className="mt-4 w-full bg-gray-200 h-2 rounded-full">
+                            <div className="w-full bg-gray-200 h-2 rounded-full">
                                 <div
                                     className="h-2 rounded-full bg-blue-500"
                                     style={{ width: `${completedPercent}%` }}
                                 ></div>
                             </div>
 
-                            {/* Percentage display */}
                             <div className="flex justify-between items-center mt-2">
                                 <span className="text-sm text-gray-500">Progress: {Math.round(completedPercent)}%</span>
                             </div>
 
-                            <div className="flex gap-2 mt-2">
-                                <button onClick={() => handleEdit(book._id)} className="bg-yellow-500 text-white px-3 py-1 rounded">
-                                    Tahrirlash
+                            <div className="flex gap-3 mt-4">
+                                <button onClick={() => handleEdit(book._id)} className="bg-yellow-500 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                                    <FaEdit /> Tahrirlash
                                 </button>
-                                <button onClick={() => handleDelete(book._id)} className="bg-red-600 text-white px-3 py-1 rounded">
-                                    O‘chirish
+                                <button onClick={() => handleDelete(book._id)} className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                                    <FaTrashAlt /> O‘chirish
                                 </button>
                             </div>
                         </li>
@@ -241,9 +237,9 @@ const BookPage = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                     <div className="bg-green-500 p-6 rounded shadow-lg w-96">
                         <h3 className="text-xl font-semibold mb-4">Kitobni tahrirlash</h3>
-                        <form className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); handleSaveEdit(); }}>
+                        <form className="flex flex-col gap-6" onSubmit={(e) => { e.preventDefault(); handleSaveEdit(); }}>
                             <div>
-                                <label htmlFor="editTitle" className="block mb-1 font-medium text-gray-700">Kitob nomi</label>
+                                <label htmlFor="editTitle" className="block mb-2 font-medium text-gray-700">Kitob nomi</label>
                                 <input
                                     type="text"
                                     id="editTitle"
@@ -251,12 +247,12 @@ const BookPage = () => {
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     required
-                                    className="border p-2 rounded w-full"
+                                    className="border p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
 
                             <div>
-                                <label htmlFor="editAuthor" className="block mb-1 font-medium text-gray-700">Muallif</label>
+                                <label htmlFor="editAuthor" className="block mb-2 font-medium text-gray-700">Muallif</label>
                                 <input
                                     type="text"
                                     id="editAuthor"
@@ -264,50 +260,39 @@ const BookPage = () => {
                                     value={author}
                                     onChange={(e) => setAuthor(e.target.value)}
                                     required
-                                    className="border p-2 rounded w-full"
+                                    className="border p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
 
                             <div>
-                                <label htmlFor="editPages" className="block mb-1 font-medium text-gray-700">Betlar soni</label>
+                                <label htmlFor="editPages" className="block mb-2 font-medium text-gray-700">Betlar soni</label>
                                 <input
                                     type="number"
                                     id="editPages"
                                     placeholder="Betlar soni"
-                                    value={pages || 0} // Ensure a number is always present
+                                    value={pages || 0}
                                     onChange={(e) => setPages(Number(e.target.value))}
                                     required
-                                    className="border p-2 rounded w-full"
+                                    className="border p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
 
                             <div>
-                                <label htmlFor="editReadingDays" className="block mb-1 font-medium text-gray-700">Necha kunda o‘qishni rejalashtiryapsiz?</label>
+                                <label htmlFor="editReadingDays" className="block mb-2 font-medium text-gray-700">Necha kunda o‘qishni rejalashtiryapsiz?</label>
                                 <input
                                     type="number"
                                     id="editReadingDays"
                                     placeholder="Necha kunda o‘qishni rejalashtiryapsiz?"
-                                    value={readingDays || 0} // Ensure a number is always present
+                                    value={readingDays || 0}
                                     onChange={(e) => setReadingDays(Number(e.target.value))}
                                     required
-                                    className="border p-2 rounded w-full"
+                                    className="border p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
 
-                            <div className="flex justify-between gap-4">
-                                <button
-                                    type="submit"
-                                    className="bg-blue-600 text-white py-2 rounded w-full"
-                                >
-                                    Saqlash
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={closeModal}
-                                    className="bg-red-600 text-white py-2 rounded w-full"
-                                >
-                                    Yopish
-                                </button>
+                            <div className="flex justify-between gap-3 mt-4">
+                                <button onClick={closeModal} type="button" className="bg-gray-400 text-white px-4 py-2 rounded-lg">Bekor qilish</button>
+                                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg">Saqlash</button>
                             </div>
                         </form>
                     </div>
