@@ -6,11 +6,13 @@ export async function PATCH(
 	_: Request,
 	{ params }: { params: Promise<{ id: string; planId: string }> }
 ) {
+	// paramsni kutish (await)
 	const { id, planId } = await params;
 
 	const { db } = await connectToDatabase();
 
 	try {
+		// MongoDB so'rovini bajarish
 		const result = await db
 			.collection('books')
 			.updateOne(
@@ -18,6 +20,7 @@ export async function PATCH(
 				{ $set: { 'readingPlans.$.done': true } }
 			);
 
+		// Agar o'zgartirish amalga oshmagan bo'lsa
 		if (result.modifiedCount === 0) {
 			return NextResponse.json(
 				{ success: false, message: 'Holat yangilanmadi' },
