@@ -93,7 +93,7 @@ const BookDetailPage = () => {
                                     className="flex items-center justify-between px-4 py-3 border rounded-xl bg-emerald-50 hover:bg-emerald-100 transition"
                                 >
                                     <span className={`text-sm ${plan.done ? 'line-through text-gray-400' : 'text-gray-700'}`}>
-                                        {plan.date}: <span className="font-medium">{plan.pages} sahifa</span>
+                                        {plan.date}:  <span className="font-bold">{plan.pages} sahifa</span>
                                     </span>
                                     {!plan.done && (
                                         <button

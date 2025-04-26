@@ -2,15 +2,11 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
-type Params = {
-	params: {
-		id: string;
-		planId: string;
-	};
-};
-
-export async function PATCH(_: Request, { params }: Params) {
-	const { id, planId } = params;
+export async function PATCH(
+	_: Request,
+	{ params }: { params: Promise<{ id: string; planId: string }> }
+) {
+	const { id, planId } = await params;
 
 	const { db } = await connectToDatabase();
 
